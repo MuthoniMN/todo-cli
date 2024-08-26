@@ -7,14 +7,17 @@ __version__ = "0.1.0"
     FILE_ERROR,
     DB_READ_ERROR,
     DB_WRITE_ERROR,
-    JSON_ERROR,
-    ID_ERROR
-) = range(7)
+    DB_ERROR,
+    ID_ERROR,
+    INITIALIZATION_ERROR
+) = range(8)
 
 ERRORS = {
     DIR_ERROR: "Config directory error",
     FILE_ERROR: "Config file error",
     DB_READ_ERROR: "Failed to read!",
-    DB_WRITE_ERROR: "Failed to write",
-    ID_ERROR: "Invalid ID"
+    DB_WRITE_ERROR: "Failed to write!",
+    DB_ERROR: "Failed to connect to database",
+    ID_ERROR: "Invalid ID",
+    INITIALIZATION_ERROR: "Failed to initialize app"
 }
