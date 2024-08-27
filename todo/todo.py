@@ -1,42 +1,54 @@
-from todo.database import connect_to_db
+from todo.config import connect_to_db
+from todo.helpers import create_or_find
 from datetime import date
 from typing import Any, List, Tuple
+from rich import print
+
+conn, cursor = connect_to_db()
 
 
 class TodoController:
     def __init__(self) -> None:
-        self.db = connect_to_db()
+        self.title = None
+        self.category = None
+        self.priority = None
+        self.date = date.today()
+        self.completed = False
 
-    def create_todo(todo, self) -> None:
-        today = date.today()
+    def __str__(self) -> str:
+        return f"Task: {self.title}\nDate: {self.date}\nCategory: {self.category}\nPriority: {self.priority}"
+
+    def create_todo(self) -> None:
         query = """INSERT INTO todos
-                    (title date, priority, category)
+                    (title, date, priority, category)
                     VALUES(%s, %s, %s, %s)"""
-        category_id = self.create_or_find("categories", todo.priority)
-        priority_id = self.create_or_find("priorities", todo.category)
+        category_id = create_or_find("categories", self.category, cursor)
+        priority_id = create_or_find("priorities", self.priority, cursor)
         values = (
-            todo.title,
-            today.timestamp,
+            self.title,
+            self.date,
             priority_id,
             category_id
         )
 
-        self.db.execute(query, values)
+        print(":hourglass_flowing_sand: Creating task...")
+        cursor.execute(query, values)
+        print(":white_check_mark: Task successfully created:confetti_ball:")
 
     def list_todos(self) -> List[Tuple[Any, ...]]:
         today = date.today()
         fetch_query = "SELECT * FROM todos WHERE date = %s"
 
-        self.db.execute(fetch_query, (today.timestamp(),))
-        values = self.db.findmany()
+        cursor.execute(fetch_query, (today,))
+        values = self.db.fetchmany()
         return values
 
     def find_todo(title, self) -> Tuple[Any, ...]:
         today = date.today()
         fetch_query = "SELECT * FROM todos WHERE date = %s AND title = %s"
 
-        self.db.execute(fetch_query, (today.timestamp(), title))
-        value = self.db.findone()
+        cursor.execute(fetch_query, (today, title))
+        value = self.db.fetchone()
         return value
 
     def complete_todo(title, self) -> None:
@@ -45,27 +57,12 @@ class TodoController:
                         SET complete = 'false'
                         WHERE date = %s AND title = %s"""
 
-        self.db.execute(fetch_query, (today.timestamp(), title))
-        value = self.db.findone()
+        cursor.execute(fetch_query, (today, title))
+        value = self.db.fetchone()
         return value
 
     def delete_todo(title, self) -> None:
         today = date.today()
-        query = "DELETE todos WHERE title = %s"
+        query = "DELETE todos WHERE date = %s AND title = %s"
 
-        self.db.execute(query, (today.timestamp(), title))
-
-    def create_or_find(type: str, value: str, self) -> int:
-        create_query = "INSERT INTO {type} (title) VALUES(%s)"
-        find_query = "SELECT * FROM {type} WHERE title=%s"
-
-        self.db.execute(find_query, (value,))
-        fetched = self.db.findone()
-
-        if fetched is None:
-            self.db.execute(create_query, (value,))
-            created = self.db.findone()
-
-            return created.id
-        else:
-            return fetched.id
+        cursor.execute(query, (today, title))
