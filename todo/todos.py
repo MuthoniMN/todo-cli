@@ -64,3 +64,19 @@ def complete(task: str) -> None:
         print(e)
         print(f":warning: Error: {ERRORS[DB_WRITE_ERROR]}")
         typer.Exit(1)
+
+
+@app.command()
+def delete(task: str) -> None:
+    """
+    Delete a task
+    """
+    todo = TodoController()
+    todo.title = task
+    try:
+        todo.delete_todo()
+        typer.Exit()
+    except Exception as e:
+        print(e)
+        print(f":warning: Error: {ERRORS[DB_WRITE_ERROR]}")
+        typer.Exit(1)

@@ -118,8 +118,13 @@ class TodoController:
         else:
             print(":white_check_mark: Completed task successfully!")
 
-    def delete_todo(title, self) -> None:
-        today = date.today()
-        query = "DELETE todos WHERE date = %s AND title = %s"
+# deleting a to-do
 
-        cursor.execute(query, (today, title))
+    def delete_todo(self) -> None:
+        today = date.today()
+        print(":hourglass_flowing_sand: Deleting task...")
+        query = "DELETE from todos WHERE date = %s AND title = %s"
+
+        cursor.execute(query, (today, self.title))
+        conn.commit()
+        print(":white_check_mark: Deleted task successfully!")
