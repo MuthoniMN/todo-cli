@@ -1,6 +1,14 @@
 from typing import Optional
 import typer
-from todo import __app_name__, __version__, ERRORS, database, DB_WRITE_ERROR
+from todo import (
+        __app_name__,
+        __version__,
+        ERRORS,
+        database,
+        DB_WRITE_ERROR,
+        DB_READ_ERROR,
+        INITIALIZATION_ERROR
+        )
 from todo.todo import TodoController
 from rich import print
 
@@ -40,7 +48,7 @@ def init():
         typer.echo("App initialized successfully!")
     except Exception as e:
         typer.echo(e)
-        typer.echo("Error: Failed to initialize")
+        typer.echo("Error: {ERRORS[INITIALIZATION_ERROR]}")
         typer.Exit(1)
 
 
@@ -78,4 +86,21 @@ def add():
     except Exception as e:
         print(e)
         print(f":warning: Error: {ERRORS[DB_WRITE_ERROR]}")
+        typer.Exit(1)
+
+
+@app.command()
+def list():
+    """
+    Get your to-do list for today.
+
+    Returns all the tasks created for today
+    """
+    todo = TodoController()
+    try:
+        todo.list_todos()
+        typer.Exit()
+    except Exception as e:
+        print(e)
+        print(f":warning: Error: {ERRORS[DB_READ_ERROR]}")
         typer.Exit(1)

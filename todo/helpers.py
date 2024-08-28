@@ -2,8 +2,9 @@ from psycopg2.errors import ProgrammingError
 from rich import print
 
 
-def create(create_query, find_query, type, value, db) -> int:
+def create(create_query, find_query, type, value, db, conn) -> int:
     db.execute(create_query, (value,))
+    conn.commit()
     db.execute(find_query, (value,))
     created = db.fetchone()
     created_id, title = created
@@ -15,7 +16,7 @@ def create(create_query, find_query, type, value, db) -> int:
     return created_id
 
 
-def create_or_find(type: str, value: str, db) -> int:
+def create_or_find(type: str, value: str, db, conn) -> int:
     create_query = f"INSERT INTO {type} (title) VALUES(%s);"
     find_query = f"SELECT * FROM {type} WHERE title=%s LIMIT 1;"
 
@@ -26,10 +27,10 @@ def create_or_find(type: str, value: str, db) -> int:
         if fetched is None:
             print(f":heavy_exclamation_mark: {type} not found")
             print(f":hourglass_flowing_sand: Creating {type}...")
-            create(create_query, find_query, type, value, db)
+            return create(create_query, find_query, type, value, db, conn)
         else:
             fetched_id, title = fetched
             print(f":white_check_mark: Fetched {type}")
             return fetched_id
     except ProgrammingError:
-        create(create_query, find_query, type, value, db)
+        return create(create_query, find_query, type, value, db, conn)
