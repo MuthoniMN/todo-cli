@@ -90,7 +90,7 @@ def add():
 
 
 @app.command()
-def list():
+def list() -> None:
     """
     Get your to-do list for today.
 
@@ -99,6 +99,23 @@ def list():
     todo = TodoController()
     try:
         todo.list_todos()
+        typer.Exit()
+    except Exception as e:
+        print(e)
+        print(f":warning: Error: {ERRORS[DB_READ_ERROR]}")
+        typer.Exit(1)
+
+
+@app.command()
+def find(task: str) -> None:
+    """
+    View a single task.
+    """
+    todo = TodoController()
+    todo.title = task
+
+    try:
+        todo.find_todo()
         typer.Exit()
     except Exception as e:
         print(e)

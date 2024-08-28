@@ -68,22 +68,23 @@ class TodoController:
 
 # display a to-do
 
-    def find_todo(title, self) -> Tuple[Any, ...]:
+    def find_todo(self) -> Tuple[Any, ...]:
         today = date.today()
-        fetch_query = "SELECT * FROM todos WHERE date = %s AND title = %s"
+        fetch_query = "SELECT title, completed FROM todos WHERE date = %s AND title = %s"
 
-        cursor.execute(fetch_query, (today, title))
-        print(":hourglass_flowing_sand: Fetching to-do list")
+        cursor.execute(fetch_query, (today, self.title))
+        print(":hourglass_flowing_sand: Fetching task")
         value = cursor.fetchone()
         if value is None:
             print(":heavy_exclamation_mark: Task was not found")
         else:
-            table = Table("task", "category", "priority", "completed")
+            print(":confetti_ball: Task successfully fetched!")
+            table = Table("task", "completed")
             completion = ":cross_mark:"
-            title, priority, category, completed = value
+            title, completed = value
             if completed:
                 completion = ":white_check_mark:"
-            table.add_row(title, category, priority, completion)
+            table.add_row(title, completion)
             print(table)
 
 # complete a to-do
