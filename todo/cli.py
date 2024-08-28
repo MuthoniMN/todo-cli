@@ -7,13 +7,15 @@ from todo import (
         database,
         INITIALIZATION_ERROR,
         DB_READ_ERROR,
-        todos
+        todos,
+        tasks
         )
 from todo.todo import TodoController
 from rich import print
 
 app = typer.Typer()
 app.add_typer(todos.app, name="todos")
+app.add_typer(tasks.app, name="tasks")
 
 
 def _version_callback(value: bool) -> None:

@@ -4,6 +4,7 @@ from datetime import date
 from typing import Any, List, Tuple
 from rich import print
 from rich.table import Table
+from todo.tasks import TaskController
 
 conn, cursor = connect_to_db()
 
@@ -53,19 +54,31 @@ class TodoController:
         print(":hourglass_flowing_sand: Fetching to-do list")
         cursor.execute(fetch_query, (today,))
         values = cursor.fetchall()
+
         print(":confetti_ball: To-do list successfully fetched!")
         print("---------------------------------")
+        if len(values) == 0:
+            print(":heavy_exclamation_mark: No tasks added yet!")
+            print("-------------------------------")
+            tasks = TaskController()
+            tasks.list_tasks(7)
+            return
         print(f":writing_hand_medium-light_skin_tone: To-do list for {today}")
         print("-------------------------------")
 
         table = Table("task", "category", "priority", "completed")
         for task in values:
             completion = ":cross_mark:"
-            title, priority, category, completed = task
+            title, category, priority, completed = task
             if completed:
                 completion = ":white_check_mark:"
             table.add_row(title, category, priority, completion)
         print(table)
+        print("-------------------------------")
+
+        tasks = TaskController()
+        tasks.list_tasks(7)
+        return
 
 # display a to-do
 
