@@ -48,6 +48,7 @@ class TodoController:
             FROM ((todos
             INNER JOIN categories ON todos.category = categories.id)
             INNER JOIN priorities ON todos.priority = priorities.id)
+            WHERE date = %s
             """
         print(":hourglass_flowing_sand: Fetching to-do list")
         cursor.execute(fetch_query, (today,))
@@ -70,7 +71,13 @@ class TodoController:
 
     def find_todo(self) -> Tuple[Any, ...]:
         today = date.today()
-        fetch_query = "SELECT title, completed FROM todos WHERE date = %s AND title = %s"
+        fetch_query = """
+            SELECT todos.title, categories.title, priorities.title, todos.completed
+            FROM ((todos
+            INNER JOIN categories ON todos.category = categories.id)
+            INNER JOIN priorities ON todos.priority = priorities.id)
+            WHERE todos.date = %s AND todos.title = %s
+            """
 
         cursor.execute(fetch_query, (today, self.title))
         print(":hourglass_flowing_sand: Fetching task")
@@ -89,15 +96,27 @@ class TodoController:
 
 # complete a to-do
 
-    def complete_todo(title, self) -> None:
+    def complete_todo(self) -> None:
         today = date.today()
-        fetch_query = """UPDATE todos
-                        SET complete = 'false'
+        update_query = """UPDATE todos
+                        SET completed = true
                         WHERE date = %s AND title = %s"""
-
-        cursor.execute(fetch_query, (today, title))
+        fetch_query = """
+            SELECT todos.title, categories.title, priorities.title, todos.completed
+            FROM ((todos
+            INNER JOIN categories ON todos.category = categories.id)
+            INNER JOIN priorities ON todos.priority = priorities.id)
+            WHERE todos.date = %s AND todos.title = %s
+            """
+        print(":hourglass_flowing_sand: Completing task...")
+        cursor.execute(update_query, (today, self.title))
+        conn.commit()
+        cursor.execute(fetch_query, (today, self.title))
         value = cursor.fetchone()
-        return value
+        if value is None:
+            print(":heavy_exclamation_mark: Failed to complete task")
+        else:
+            print(":white_check_mark: Completed task successfully!")
 
     def delete_todo(title, self) -> None:
         today = date.today()
