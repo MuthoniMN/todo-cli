@@ -60,6 +60,7 @@ class TaskController:
         if len(values) == 0:
             print(":heavy_exclamation_mark: No tasks added yet!")
             print("-------------------------------")
+            print(today + timedelta(days=duration))
             return
         print(f":writing_hand_medium-light_skin_tone: Tasks due between {today} and {today + timedelta(days=duration)}")
         print("-------------------------------")
